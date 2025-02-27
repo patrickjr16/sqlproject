@@ -1,0 +1,69 @@
+Sub StockData()
+
+Set SapGuiAuto = GetObject("SAPGUI")
+Set objGui = SapGuiAuto.GetScriptingEngine
+Set objConn = objGui.Children(0)
+Set session = objConn.Children(0)
+
+Dim a, c As Integer
+Dim aRow, i, n As Long
+Dim StartTime As Double
+
+Application.DisplayAlerts = False
+Application.ScreenUpdating = False
+
+c = Range("C1").Value
+Range("B2").Formula = "=B1 + 15"
+Range("B2").Copy
+Range("B2" & ":B" & c).PasteSpecial xlPasteAll
+
+StartTime = Timer
+
+session.findById("wnd[0]").maximize
+session.findById("wnd[0]/tbar[0]/okcd").Text = "mb52"
+session.findById("wnd[0]").sendVKey 0
+session.findById("wnd[0]/tbar[1]/btn[17]").press
+session.findById("wnd[1]/usr/txtV-LOW").Text = "tarikan macro"
+session.findById("wnd[1]/tbar[0]/btn[8]").press
+
+aRow = ThisWorkbook.Sheets("MB52 Macro").Cells(Rows.Count, "B").End(xlUp).Row
+Path = Range("F1").Value
+
+For i = 1 To aRow - 1
+
+    a = Range("B" & i) + 1
+    n = Range("B" & i + 1)
+
+    session.findById("wnd[0]/usr/btn%_WERKS_%_APP_%-VALU_PUSH").press
+    session.findById("wnd[1]/tbar[0]/btn[16]").press
+    Range("A" & a & ":A" & n).Copy
+    session.findById("wnd[1]/tbar[0]/btn[24]").press
+    session.findById("wnd[1]/tbar[0]/btn[8]").press
+    session.findById("wnd[0]/usr/chkPA_SOND").Selected = True
+    session.findById("wnd[0]/usr/ctxtSO_SOBKZ-LOW").Text = "K"
+    session.findById("wnd[0]/tbar[1]/btn[8]").press
+    If Not session.findById("wnd[0]/mbar/menu[0]/menu[1]/menu[1]", False) Is Nothing Then
+        session.findById("wnd[0]/tbar[1]/btn[33]").press
+        session.findById("wnd[1]/tbar[0]/btn[84]").press
+        session.findById("wnd[1]").sendVKey 2
+        session.findById("wnd[0]/mbar/menu[0]/menu[1]/menu[1]").Select
+        session.findById("wnd[1]/tbar[0]/btn[0]").press
+        session.findById("wnd[1]/usr/ctxtDY_PATH").Text = Path
+        session.findById("wnd[1]/usr/ctxtDY_FILENAME").Text = i & ".XLSX"
+        session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 6
+        session.findById("wnd[1]/tbar[0]/btn[0]").press
+        session.findById("wnd[0]/tbar[0]/btn[3]").press
+    End If
+Next i
+
+Application.DisplayAlerts = True
+Application.ScreenUpdating = True
+
+Range("B2" & ":B" & c).Delete
+
+Dim MinutesElapsed As String
+
+MinutesElapsed = Format((Timer - StartTime) / 86400, "hh:mm:ss")
+MsgBox "" & MinutesElapsed & " minutes", vbInformation
+
+End Sub
