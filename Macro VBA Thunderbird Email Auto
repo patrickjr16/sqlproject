@@ -1,0 +1,53 @@
+Sub Thunderbird()
+
+Dim thund As String
+Dim email As String
+Dim cc As String
+Dim bcc As String
+Dim subj As String
+Dim body As String
+
+subj = ThisWorkbook.Sheets("Mail_Subject").Range("A2").Text
+cc = ThisWorkbook.Sheets("Detail").Range("E1").Text
+body = ThisWorkbook.Sheets("Mail_Subject").Range("B2").Text
+
+intRow = 2
+email = ThisWorkbook.Sheets("Format").Range("B" & intRow).Text
+
+While (email <> "")
+
+    Name = ThisWorkbook.Sheets("Format").Range("D" & intRow).Text
+    Vendor = ThisWorkbook.Sheets("Format").Range("A" & intRow).Text
+    email = ThisWorkbook.Sheets("Format").Range("B" & intRow).Text
+    Attach = ThisWorkbook.Sheets("Format").Range("C" & intRow).Text
+    
+    subj = ThisWorkbook.Sheets("Mail_Subject").Range("A2").Text
+    cc = ThisWorkbook.Sheets("Detail").Range("E1").Text
+    body = ThisWorkbook.Sheets("Mail_Subject").Range("B2").Text
+    
+    subj = Replace(subj, "<Vendor>", Vendor)
+    body = Replace(body, "<Name>", Name)
+    body = Replace(body, "<Subject>", subj)
+    
+    thund = "C:\Program Files\Mozilla Thunderbird\thunderbird" & _
+            " -compose " & """" & _
+            "to='" & email & "'," & _
+            "cc='" & cc & "'," & _
+            "subject='" & subj & "'," & _
+            "body='" & body & "'" & """" & ",attachment=" & Attach
+
+    Call Shell(thund, vbHideFocus)
+ 
+    intRow = intRow + 1
+    email = ThisWorkbook.Sheets("Format").Range("B" & intRow).Text
+    
+    If email = "" Then
+        intRow = intRow + 1
+        email = ThisWorkbook.Sheets("Format").Range("B" & intRow).Text
+    End If
+Wend
+
+End Sub
+
+
+
